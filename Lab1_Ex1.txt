@@ -1,0 +1,134 @@
+##----------------------------------------------------------------------------------
+#Exercise 1: PIZZA DATA 
+##----------------------------------------------------------------------------------
+pizza<-read.table("Pizza_Price.txt")
+head(pizza)
+head(pizza,20)
+dim(pizza)
+
+#Check type of data and make any changes
+str(pizza)
+pizza$Extra.Cheeze<-factor(pizza$Extra.Cheeze)
+pizza$Extra.Mushroom<-factor(pizza$Extra.Mushroom)
+pizza$Extra.Spicy<-factor(pizza$Extra.Spicy)
+pizza$Size<-as.numeric(pizza$Size)
+pizza$Price<-as.numeric(pizza$Price)
+
+pizza$Extra.Cheeze
+
+
+#Distinguise quantitative and qualitative variables 
+sapply(pizza,class)
+#better look
+t(t(sapply(pizza,class)))
+
+#Descriptive statistics for quantitative variables
+num<-which(sapply(pizza,class)=="numeric")
+pizza_num<-pizza[,num]
+
+#Use for loop to find basic descriptive for the above variables 
+descr<-list()
+for(i in 1:ncol(pizza_num)){
+descr[[i]]<-summary(pizza_num[,i])
+}
+descr
+
+for(i in 1:ncol(pizza_num)){
+print(summary(pizza_num[,i]))
+}
+
+#Use family of apply() to find basic descriptive statistics
+sapply(pizza_num,summary)
+
+#Make a function that returns mean, median and sd for quantitative variables 
+
+mydescr<-function(data){
+mesos<-mean(data)
+diamesos<-median(data)
+sd<-sqrt(var(data))
+return( list("mean"=mesos,"median"=diamesos,"sd"=sd) )
+}
+#Check that function is ok
+mydescr(pizza_num[,1])
+mydescr(pizza_num[,2])
+
+#Apply to all variables 
+sapply(pizza_num,mydescr)
+
+#Plots for quantitative variables
+histog<-function(data){
+return(hist(data) )
+}
+
+par(mfrow=c(1,2))
+sapply(pizza_num,histog)
+
+boxpl<-function(data){
+return(boxplot(data))
+}
+
+par(mfrow=c(1,2))
+sapply(pizza_num,boxpl)
+
+
+#Descriptive statistics for qualitative variables
+categ<-which(sapply(pizza,class)=="factor")
+pizza_categ<-pizza[,categ]
+
+#Use for loop to find basic descriptive for the above variables 
+freq<-list() 
+rel_freq<-list()
+for(i in 1:ncol(pizza_categ)){
+freq[[i]]<-table(pizza_categ[,i])
+rel_freq[[i]]<-prop.table(table(pizza_categ[,i]))
+}
+freq 
+rel_freq
+names(freq)<-names(rel_freq)<-c("Extra.Cheeze","Extra.Mushroom","Extra.Spicy")
+#or 
+names(freq)<-names(rel_freq)<-colnames(pizza_categ)
+
+#Use family of apply() to find frequency table
+sapply(pizza_categ,table)
+sapply(pizza_categ,function(x)prop.table(table(x)))
+
+#Plots for qualitative variables
+brpl<-function(data){
+#return(barplot(table(data))
+#or 
+return(barplot(prop.table(table(data)))
+)
+}
+par(mfrow=c(1,1))
+#Check function
+brpl(pizza_categ[,1])
+
+par(mfrow=c(2,2))
+sapply(pizza_categ,brpl)
+
+
+#Transform size into ordinal and provide appropariate descriptive and plots
+Size_ord<-as.ordered(pizza$Size)
+table(Size_ord)
+prop.table(table(Size_ord))
+
+dev.off()#close par(mfrow)
+barplot(table(Size_ord),main="Pizza Size")
+barplot(prop.table(table(Size_ord)),main="Pizza Size")
+
+#Transform size into binary with treshold its mean value
+tres<-mean(pizza$Size)
+Size_bin<- ifelse(pizza$Size > tres, 1, 0)
+#or 
+Size_bin<-(pizza$Size<tres)*0+(pizza$Size>tres)*1
+table(Size_bin)
+prop.table(table(Size_bin))
+
+#Use quantiles to create a categorical variable from pizza size
+summary(pizza$Size)
+Size_cat <- cut(pizza$Size, breaks = c(8,9,12.75,15),include.lowest=T, labels = c("Small", "Medium", "Large"), right = FALSE)
+table(Size_cat)
+prop.table(table(Size_cat))
+
+
+

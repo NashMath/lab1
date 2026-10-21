@@ -1,0 +1,100 @@
+---
+title: "My first document"
+author: "Anna"
+date: "2024-03-07"
+output: html_document
+---
+ 
+We have the following dataset:
+ 
+```{r}
+#Insert data
+value<-c(42, 52, 48, 58, 32, 45, 22, 35, 28, 46)
+nbooks<-c(4, 5, 4, 3, 2, 4, 1, 2, 2, 4)
+sex<-factor( c(1,1,2,1,2,2,2,1,1,1), labels=c('Male', 'Female') )
+income<-factor(c(1,3,5,2,2,4,1,4,4,5))
+levels(income)<-c('Very low', 'Low', 'Medium', 'High', 'Very High')
+income<-as.ordered(income)
+#Create dataframe 
+data <- data.frame(value, nbooks, sex, income)
+data
+```
+ 
+If we don't want to print the code, then we use the argument "echo=FALSE". The, we print only the dataframe: 
+```{r, echo=FALSE}
+#Insert data
+value<-c(42, 52, 48, 58, 32, 45, 22, 35, 28, 46)
+nbooks<-c(4, 5, 4, 3, 2, 4, 1, 2, 2, 4)
+sex<-factor( c(1,1,2,1,2,2,2,1,1,1), labels=c('Male', 'Female') )
+income<-factor(c(1,3,5,2,2,4,1,4,4,5))
+levels(income)<-c('Very low', 'Low', 'Medium', 'High', 'Very High')
+income<-as.ordered(income)
+data <- data.frame(value, nbooks, sex, income)
+data
+```
+ 
+ 
+*Descriptive statistics*<br>
+**Quantitative variables** <br>
+Type of variables 
+```{r, echo=FALSE}
+str(data)
+types<-sapply(data,class)
+num<-which(types=="numeric")
+data_num<-data[,num]
+```
+Basic descriptive statistics 
+```{r, echo=FALSE}
+sapply(data_num,summary)
+```
+ 
+*Plots of quantitative variables*
+```{r, echo=FALSE}
+histog<-function(data){
+return(hist(data))
+}
+ 
+boxpl<-function(data){
+return(boxplot(data))
+}
+ 
+par(mfrow=c(2,2))
+sapply(data_num,histog)
+sapply(data_num,boxpl)
+```
+**Qualitative variables**
+```{r,echo=FALSE}
+cat<-which(types!="numeric")
+data_cat<-data[,cat]
+sapply(data_cat,table)
+sapply(data_cat,function(x)prop.table(table(x)))
+ 
+```
+Mean value and nbooks for men
+ 
+ 
+```{r, echo=FALSE}
+data_male<-data[data$sex=="Male",1:2]
+sapply(data_male,mean)
+mean(data$value[data$sex=="Male"])
+ 
+```
+ 
+Frequency table of income for women
+ 
+```{r, echo=FALSE}
+data_fem<-data$income[data$sex=="Female"]
+prop.table(table(data_fem))
+table(data_fem)/length(data_fem)
+#pay attention, different percentages
+table(data$income[data$sex=="Female"])/nrow(data)
+```
+ 
+Add a new variable that indicates whether someone has or not children.
+```{r, echo=FALSE}
+#Simulate 10 values from bernoulli with p=0.6. 
+#Add these values in a new column of dataset 2 with the name "Indication"
+sim<-rbinom(10,1,0.6)
+data$Indication<-sim
+data
+```

@@ -1,0 +1,89 @@
+##--------------------------------------------------------------------
+## Exercise 3
+##--------------------------------------------------------------------
+zara<-read.table("zara_sales.txt",heade=T)
+head(zara)
+str(zara)
+dim(zara)
+
+# Transform variables'type into the correct type
+for(i in c(1:4,7)){
+zara[,i]<-as.factor(zara[,i])
+}
+
+zara[,5]<-as.numeric(zara[,5])
+str(zara)
+
+
+# Define a function that returns the barplot or the histogram of a variable according to its type
+myPlot <- function(data) {
+  if (is.numeric(data)) {
+    p <- hist(data)
+  } else {
+    p <- barplot(prop.table(table(data)))
+  }
+  return(p)
+}
+
+
+# Apply the function for the variable of price and Product.Category
+myPlot(zara$price)
+myPlot(zara$Product.Category)
+
+
+#Remove the Product.Category from the dataset
+zara<-zara[,-3]
+
+# Apply the function for all variables
+par(mfrow=c(2,3))
+sapply(zara,myPlot)
+##OR
+for(i in 1:ncol(zara)){
+myPlot(zara[,i])
+}
+
+
+##Define the main of the plot
+myPlot2 <- function(data,nam) {
+  if (is.numeric(data)) {
+    p <- hist(data,main=nam)
+  } else {
+    p <- barplot(prop.table(table(data)),main=nam)
+  }
+  return(p)
+}
+
+par(mfrow=c(2,3))
+for(i in 1:ncol(zara)){
+myPlot2(zara[,i],names(zara)[i])
+}
+
+# Define a function that returns appropriate statistics of a variable according to its type
+myDescr <- function(data) {
+  if (is.numeric(data)) {
+    p <- list(mean(data),median(data),sd(data))
+  } else {
+    p <- list(table(data),prop.table(table(data)))
+  }
+  return(p)
+}
+
+sapply(zara,myDescr)
+
+
+# Make the price a categorical variable with values LOW, NORMAL, HIGH in terms of Q1 and Median
+summary(zara$price)
+price_cat<-0*(zara$price<=49.90) + 1* (zara$price>49.9 & zara$price<=79.9) + 2*(zara$price>79.9)
+price_cat=as.factor(price_cat)
+levels(price_cat)=c("LOW","NORMAL","HIGH")
+
+# Create a new variable with the logarithmic price
+price_log=log(zara$price)
+
+par(mfrow=c(1,2))
+myPlot2(price_cat,"Categorical Price")
+myPlot2(price_log,"Log-Price")
+
+
+
+
